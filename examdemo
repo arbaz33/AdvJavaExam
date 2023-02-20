@@ -1,0 +1,118 @@
+package com.lab_Exam.servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet(urlPatterns = "/getemp")
+public class EmployeeServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+   
+   
+
+	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    static final String DB_URL = "jdbc:mysql://localhost/tvm1";
+
+   
+    static final String USER = "root";
+    static final String PASS = "abc123";
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+      
+        response.setContentType("text/html");
+        
+        PrintWriter out = response.getWriter();
+        out.println("<html><body>");
+
+        Connection conn = null;
+        Statement stmt = null;
+        
+        try {
+           
+            Class.forName(JDBC_DRIVER);
+
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+           
+            stmt = conn.createStatement();
+            String sql = "SELECT empid, empname, age, salary FROM employee2";
+            ResultSet rs = stmt.executeQuery(sql);
+
+            
+            out.println("<table border='1'>");
+            out.println("<tr><th>Emp ID</th><th>Name</th><th>Age</th><th>Salary</th></tr>");
+            while (rs.next()) {
+                String empid = rs.getString("empid");
+                String empname = rs.getString("empname");
+                int age = rs.getInt("age");
+                int salary = rs.getInt("salary");
+                out.println("<tr><td>" + empid + "</td><td>" + empname + "</td><td>" + age + "</td><td>" + salary
+                        + "</td></tr>");
+            }
+            out.println("</table>");
+
+            // Clean-up environment
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close resources
+            try {
+                if (stmt != null)
+                    stmt.close();
+            } catch (SQLException se2) {
+            }
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+        out.println("</body></html>");
+    }
+	
+}
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>redirection demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<div class="container">
+		<form action="getemp" method="get" class="form">
+			<div class="form-group">
+				<label class="control-label">Employee info   :</label>
+			
+			<input type="submit" value="CLICK TO Submitt" name="btn">
+			</div>
+		</form>
+	</div>
+</body>
+</html>
